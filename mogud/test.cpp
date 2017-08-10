@@ -1,7 +1,5 @@
 #include "type_list.hpp"
 
-#include <iostream>
-
 template <typename T>
 struct is_int {
 	enum { value = false };
