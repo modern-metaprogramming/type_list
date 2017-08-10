@@ -1,3 +1,6 @@
+
+
+
 #ifndef _TYPE_LIST_FILIXI_TYPE_LIST_H_
 #define _TYPE_LIST_FILIXI_TYPE_LIST_H_
 
@@ -68,7 +71,7 @@ constexpr bool NoneOf(TypeList<Args...> list) {
 //! Algo #2 IsSame
 template <class... Args1, class... Args2>
 constexpr bool IsSame(TypeList<Args1...> list1, TypeList<Args2...> list2) {
-  if constexpr (sizeof...(Args1) != sizeof...(Args2))
+  if constexpr (Size(list1) != Size(list2))
     return false;
   else
     return (std::is_same<Args1, Args2>::value && ...);
@@ -170,6 +173,9 @@ struct TypeList {
     return type_list::Merge(TypeList(), T());
   }
 };
+
+template <class... Args>
+constexpr TypeList<Args...> typelist;
 
 } // namespace type_list
 
