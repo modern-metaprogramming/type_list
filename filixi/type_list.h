@@ -9,13 +9,7 @@
 
 namespace type_list {
 template <class... Args>
-struct TypeList {
-  constexpr TypeList() = default;
-
-  static constexpr auto Size() {
-    return sizeof...(Args);
-  }
-};
+struct TypeList;
 
 template <class... Args>
 constexpr auto IndexSequenceOf(TypeList<Args...>) {
@@ -42,6 +36,11 @@ constexpr auto ReverseImpl(TypeList<Args...> list,
   return TypeList<TypeAtT<list.Size() - index - 1, decltype(list)>...>{};
 }
 
+template <class... Args>
+constexpr auto Size(TypeList<Args...>) {
+  return sizeof...(Args);
+}
+
 //! Algo #1 Reverse
 template <class... Args>
 constexpr auto Reverse(TypeList<Args...> list) {
@@ -60,6 +59,12 @@ constexpr bool AllOf(TypeList<Args...> list) {
   return (std::is_same<T, Args>::value && ...);
 }
 
+//! Algo #2 NoneOf
+template <class T, class... Args>
+constexpr bool NoneOf(TypeList<Args...> list) {
+  return !AnyOf<T>(list);
+}
+
 //! Algo #2 IsSame
 template <class... Args1, class... Args2>
 constexpr bool IsSame(TypeList<Args1...> list1, TypeList<Args2...> list2) {
@@ -67,12 +72,6 @@ constexpr bool IsSame(TypeList<Args1...> list1, TypeList<Args2...> list2) {
     return false;
   else
     return (std::is_same<Args1, Args2>::value && ...);
-}
-
-//! Algo #2 NoneOf
-template <class T, class... Args>
-constexpr bool NoneOf(TypeList<Args...> list) {
-  return !AnyOf<T>(list);
 }
 
 //! Algo #3 Merge
@@ -108,6 +107,69 @@ constexpr auto Remove(TypeList<Args...> list) {
   else
     return Merge(Slice<0, pos>(list), Slice<pos+1, count>(list));
 }
+
+template <class... Args>
+struct TypeList {
+  constexpr TypeList() = default;
+
+   constexpr auto Size() {
+    return type_list::Size(TypeList());
+  }
+
+  static constexpr auto Reverse() {
+    return type_list::Reverse(TypeList());
+  }
+
+  template <class T>
+  static constexpr auto AnyOf() {
+    return type_list::AnyOf<T>(TypeList());
+  }
+
+  template <class T>
+  static constexpr auto AllOf() {
+    return type_list::AllOf<T>(TypeList());
+  }
+
+  template <class T>
+  static constexpr auto NoneOf() {
+    return type_list::NoneOf<T>(TypeList());
+  }
+
+  template <class T>
+  static constexpr auto IsSame(T) {
+    return type_list::IsSame(TypeList(), T());
+  }
+
+  template <class T>
+  static constexpr auto Merge(T) {
+    return type_list::Merge(TypeList(), T());
+  }
+
+  template <size_t first, size_t last>
+  static constexpr auto Slice() {
+    return type_list::Slice<first, last>(TypeList());
+  }
+
+  template <size_t pos>
+  static constexpr auto Remove() {
+    return type_list::Remove<pos>(TypeList());
+  }
+
+  template <class T>
+  friend constexpr bool operator==(TypeList, T) {
+    return type_list::IsSame(TypeList(), T());
+  }
+
+  template <class T>
+  friend constexpr bool operator!=(TypeList, T) {
+    return !type_list::IsSame(TypeList(), T());
+  }
+
+  template <class T>
+  friend constexpr auto operator+(TypeList, T) {
+    return type_list::Merge(TypeList(), T());
+  }
+};
 
 } // namespace type_list
 
