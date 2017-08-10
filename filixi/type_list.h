@@ -1,5 +1,5 @@
 
-
+// Copyright 2017 filixi
 
 #ifndef _TYPE_LIST_FILIXI_TYPE_LIST_H_
 #define _TYPE_LIST_FILIXI_TYPE_LIST_H_
