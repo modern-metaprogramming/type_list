@@ -1,31 +1,56 @@
 
+// Copyright 2017 filixi
+
 #include "type_list.h"
 
 int main() {
   using namespace type_list;
 
-  TypeList<int, char, float, uint8_t, uint64_t, int &, double &&> list;
+  TypeList<int, int &, double> list;
+  TypeList<> empty_list;
 
-  // Algo #1 Reverse
-  auto reverse = Reverse(list);
-  static_assert(std::is_same<TypeAtT<2, decltype(reverse)>, uint64_t>::value);
+  { // Algo #1 Reverse
+    static_assert(Reverse(list) == typelist<double, int &, int>);
+    static_assert(empty_list.Reverse() == empty_list);
+  }
 
-  // Algo #2 AnyOf AllOf NoneOf
-  static_assert(AnyOf<double &&>(list));
-  static_assert(!AllOf<uint8_t>(list));
-  static_assert(NoneOf<uint32_t>(list));
+  { // Algo #2 AnyOf AllOf NoneOf IsSame
+    static_assert(list.AnyOf<int &>());
+    static_assert(!AllOf<int>(list));
+    static_assert(NoneOf<float>(list));
 
-  // Algo #3 Merge
-  auto merge = Merge(TypeList<int, double>{}, TypeList<float, char>{});
-  static_assert(std::is_same<TypeAtT<2, decltype(merge)>, float>::value);
+    static_assert(!AnyOf<int &>(empty_list));
+    static_assert(empty_list.AllOf<int>());
+    static_assert(NoneOf<float>(empty_list));
 
-  // Algo #4 SubList
-  auto range = SubList<1, 2>(list); // TypeList<char, float>
-  static_assert(std::is_same<TypeAtT<0, decltype(range)>, char>::value);
+    static_assert(!AnyOf<int &>(typelist<int>));
+    static_assert(AllOf<int>(typelist<int, int>));
+    static_assert(!list.NoneOf<double>());
 
-  // Algo #5 Remove
-  auto sub = Remove<6>(list); // removes double &&
-  static_assert(NoneOf<double &&>(sub));
+    static_assert(!IsSame(typelist<int>, list));
+    static_assert(IsSame(typelist<int, int &, double>, list));
+    static_assert(empty_list.IsSame(empty_list));
+    static_assert(!empty_list.IsSame(list));
+  }
+
+  { // Algo #3 Merge
+    static_assert(Merge(typelist<int, int &>, typelist<double>) == list);
+    static_assert(empty_list.Merge(empty_list) == empty_list);
+    static_assert(empty_list + list == list);
+  }
+
+  { // Algo #4 Slice
+    static_assert(Slice<1, 3>(list) == typelist<int&, double>);
+    static_assert(Slice<0, 3>(list) == list);
+    static_assert(list.Slice<1, 1>() == empty_list);
+    static_assert(empty_list.Slice<0, 0>() == empty_list);
+  }
+
+  { // Algo #5 Remove
+    static_assert(Remove<0>(list) == typelist<int &, double>);
+    static_assert(Remove<1>(list) == typelist<int, double>);
+    static_assert(list.Remove<2>() == typelist<int, int &>);
+  }
 
   return 0;
 }
