@@ -37,10 +37,10 @@ struct is_first_type
 };
 
 
-template <typename T, typename T_head, typename... Ts>
-struct is_first_type<T, type_list<T_head, Ts...>>
+template <typename T, typename... Ts>
+struct is_first_type<T, type_list<T, Ts...>>
 {
-    static const bool value = std::is_same<T, T_head>::value;
+    static const bool value = true;
 };
 
 
