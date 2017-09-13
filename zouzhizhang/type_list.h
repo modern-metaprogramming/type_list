@@ -107,14 +107,15 @@ struct type_list_t
   template<size_t I> using get = typename type_list_get_t<type_list_t<args_t...>>::template get<I>::type;
   using front = get<0>;
   using back = get<size - 1>;
-  template<class T> using push_back = typename type_list_t<args_t..., T>;
+  template<class T> using push_back = type_list_t<args_t..., T>;
   using pop_back = typename type_list_slice_t<type_list_t<args_t...>, 0, size - 1>::type;
-  template<class T> using push_front = typename type_list_t<T, args_t...>;
+  template<class T> using push_front = type_list_t<T, args_t...>;
   using pop_front = typename type_list_slice_t<type_list_t<args_t...>, 1, size - 1>::type;
   template<class other_t> using cat = typename type_list_cat_t<type_list_t<args_t...>, other_t>::type;
   template<size_t B, size_t S> using slice = typename type_list_slice_t<type_list_t<args_t...>, B, S>::type;
   template<size_t I, class T> using insert = typename type_list_cat_t<slice<0, I>, type_list_t<T>, slice<I, size - I>>::type;
   template<size_t I> using remove = typename type_list_cat_t<slice<0, I>, slice<I + 1, size - I - 1>>::type;
+  template<template<class...> class T> using transform = type_list_t<typename T<args_t>::type...>;
 };
 template<>
 struct type_list_t<>
@@ -128,5 +129,5 @@ struct type_list_t<>
   template<class other_t> using cat = other_t;
   template<size_t B, size_t S> using slice = typename type_list_slice_t<type_list_t<>, B, S>::type;
   template<size_t I, class T> using insert = typename type_list_slice_t<type_list_t<T>, I, 0>::type;
+  template<template<class...> class T> using transform = type_list_t<>;
 };
-

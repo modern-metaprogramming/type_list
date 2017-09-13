@@ -23,6 +23,8 @@ int main()
   using list17_t = list1_t::insert<0, float>;
   using list18_t = list1_t::insert<1, float>;
   using list19_t = list1_t::insert<4, float>;
+  using list20_t = list1_t::transform<std::add_pointer>;
+  using list21_t = list1_t::transform<std::add_rvalue_reference>;
 
   static_assert(list1_t::size == 4, "no");
   static_assert(std::is_same<list1_t::begin::type, int>::value, "no");
@@ -59,6 +61,8 @@ int main()
   static_assert(std::is_same<list17_t, type_list_t<float, int, long, char, double>>::value, "no");
   static_assert(std::is_same<list18_t, type_list_t<int, float, long, char, double>>::value, "no");
   static_assert(std::is_same<list19_t, type_list_t<int, long, char, double, float>>::value, "no");
+  static_assert(std::is_same<list20_t, type_list_t<int *, long *, char *, double *>>::value, "no");
+  static_assert(std::is_same<list21_t, type_list_t<int &&, long &&, char &&, double &&>>::value, "no");
 
 }
 
