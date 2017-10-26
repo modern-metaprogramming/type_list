@@ -284,5 +284,22 @@ struct find: find_impl<typename begin<TypeList_>::type, typename end<TypeList_>:
 {
 };
 
+template<typename TypeList_, typename OldType_, typename NewType_>
+struct replace;
+
+template<typename OldType_, typename NewType_>
+struct replace<null_type_list, OldType_, NewType_>
+{
+	using type = null_type_list;
+};
+
+template<typename Head_, typename...Tail_, typename OldType_, typename NewType_>
+struct replace<type_list<Head_, Tail_...>, OldType_, NewType_>
+{
+	using sub_type = typename replace<type_list<Tail_...>, OldType_, NewType_>::type;
+	using type = typename std::conditional<std::is_same<Head_, OldType_>::value,
+						            	   typename push_front<sub_type, NewType_>::type,
+								           typename push_front<sub_type, OldType_>::type>::type;
+};
 
 }
